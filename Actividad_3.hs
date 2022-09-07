@@ -1,5 +1,5 @@
 -- Creamos el lenguaje Prop
-data Prop = VarProp Int
+data Prop = VarProp String
           | T 
           | F 
           | Neg Prop
@@ -7,23 +7,23 @@ data Prop = VarProp Int
           | And Prop  Prop
           | Or Prop Prop
           | Syss Prop Prop
- deriving (Show, Eq)
+ deriving (Eq) -- Se elimina Show para instanciar nuestro propio Show
 
 -- Variable proposicional p
 p :: Prop
-p = VarProp 1
+p = VarProp "p"
 --Variable proposicional q
 q :: Prop
-q = VarProp 2
+q = VarProp "q"
 -- Variable proposicional r
 r :: Prop
-r = VarProp 3
+r = VarProp "r"
 -- Variable proposicional s
 s :: Prop
-s = VarProp 4
+s = VarProp "s"
 -- Variable proposicional t
 t :: Prop
-t = VarProp 5
+t = VarProp "t"
 
 {- PARTE 1  -}
 -- Regresa una lista con las sublistas de los elementos de la lista (Conjunto potencia)
@@ -134,4 +134,16 @@ estados (Or p q) = subConjProp(vars(Or p q))
 estados (Imp p q) = subConjProp(vars(Imp p q))
 estados (Syss p q) = subConjProp(vars(Syss p q)) 
 
+{-extra-}
+instance Show Prop where
+   show (T) = "⊤"++" "
+   show (F) = "⊥"++" "
+   show (VarProp p) = p
+   show (Neg a) = "¬"++show(a)
+   show (And a b) = "(" ++ show(a) ++ " ∧ "  ++ show(b) ++ ")"
+   show (Or a b) = "(" ++ show(a) ++ " ∨ "  ++ show(b) ++ ")"
+   show (Imp a b) = "(" ++ show(a) ++ " -> " ++ show(b) ++ ")"
+   show (Syss a b) = "(" ++ show(a) ++ " <-> " ++ show(b) ++ ")"
+
 {- PARTE 3  -}
+

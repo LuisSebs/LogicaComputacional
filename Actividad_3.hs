@@ -166,28 +166,60 @@ eliminaImp (And a b) = (And (eliminaImp a) (eliminaImp b))
 eliminaImp (Or a b) = (Or (eliminaImp a) (eliminaImp b))
 eliminaImp (Imp a b) = (Or (Neg (eliminaImp a)) (eliminaImp b))
 
-empujaNegaciones :: Prop -> Prop
-empujaNegaciones T = T 
-empujaNegaciones F = F 
-empujaNegaciones (VarProp p) = (VarProp p)
-empujaNegaciones (Neg T) = (Neg T) 
-empujaNegaciones (Neg F) = (Neg F)
-empujaNegaciones (Neg (VarProp p)) = (Neg (VarProp p))
-empujaNegaciones (And a b) = (And (empujaNegaciones a)(empujaNegaciones b))
-empujaNegaciones (Or a b) = (Or (empujaNegaciones a)(empujaNegaciones b))
-empujaNegaciones (Neg (And a b)) = (Or (empujaNegaciones (Neg a))(empujaNegaciones (Neg b)))
-empujaNegaciones (Neg (Or a b)) = (And (empujaNegaciones (Neg a))(empujaNegaciones (Neg b)))
-empujaNegaciones (Neg a) = (Neg (empujaNegaciones a))
+empujaNeg :: Prop -> Prop 
+empujaNeg T = T 
+empujaNeg F = F
+empujaNeg (VarProp p) = (VarProp p)
+empujaNeg (And a b) = (And (empujaNeg a)(empujaNeg b))
+empujaNeg (Or a b) = (Or (empujaNeg a)(empujaNeg b))
+empujaNeg (Neg a) = empujaNegAux(Neg a)
 
---empujaNegaciones T = T 
---empujaNegaciones F = F 
---empujaNegaciones (VarProp p) = (VarProp p)
---empujaNegaciones (Neg p) = (Neg (empujaNegaciones(p)))
---empujaNegaciones (Neg (And a b)) = (Or (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
---empujaNegaciones (Neg (Or a b)) = (And (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
---empujaNegaciones (And a b) = (And (empujaNegaciones a) (empujaNegaciones b))
---empujaNegaciones (Or a b) = (Or (empujaNegaciones a) (empujaNegaciones b))
---empujaNegaciones (Neg a) = if (literal(a)) then (Neg a) else empujaNegaciones a
+empujaNegAux :: Prop -> Prop 
+empujaNegAux (Neg T) = T 
+empujaNegAux (Neg F) = F
+empujaNegAux (Neg (VarProp p)) = (Neg (VarProp p))
+empujaNegAux (Neg (And a b)) =(Or (empujaNeg(Neg a))(empujaNeg(Neg b)))
+empujaNegAux (Neg (Or a b)) = (And (empujaNeg(Neg a))(empujaNeg(Neg b)))
+empujaNegAux (Neg (Neg a)) = empujaNeg(a)
+
+
+
+--empujaNeg dania
+--empujaNeg :: Prop -> Prop
+--empujaNeg (VarProp p) = (VarProp p)
+--empujaNeg (Neg (And p q)) = (Or (Neg(empujaNeg p))(Neg(empujaNeg q)))
+--empujaNeg (Neg (Or p q)) = (And (Neg(empujaNeg p))(Neg(empujaNeg q)))
+--empujaNeg (Neg p) = (Neg (empujaNeg p))
+--empujaNeg (And p q) = (And (empujaNeg p)(empujaNeg q))
+--empujaNeg (Or p q) = (Or (empujaNeg p)(empujaNeg q))
+
+
+
+
+notNeg :: Prop -> Bool
+notNeg T = True 
+notNeg F = True 
+notNeg (VarProp p) = True 
+notNeg (And a b) = (notNeg a && notNeg b)
+notNeg (Or a b) = (notNeg a && notNeg b)
+notNeg (Neg (VarProp p)) = True
+notNeg (Neg (And a b)) = False
+notNeg (Neg (Or a b)) = False 
+notNeg (Neg a) = True
+
+
+
+
+
+
+--deMorgan :: Prop -> Prop
+--deMorgan T = T
+--deMorgan F = F
+--deMorgan (VarProp p) = (VarProp p)
+--deMorgan (Neg (And a b)) = (Or (Neg (deMorgan a)) (Neg (deMorgan b)))
+--deMorgan (Neg (Or a b)) = (And (Neg (deMorgan a))(Neg (deMorgan b)))
+--deMorgan (Neg p) = (Neg (deMorgan p))
+
 
 {-Funcion que determina si una formula es una literal o no-}
 literal :: Prop -> Bool
@@ -203,7 +235,7 @@ literal (Or a b) = False
 literal (Imp a b) = False
 literal (Syss a b) = False
 
-{-Funcion que elimina doble negaciones-}
+{-Funcion que limina doble negaciones-}
 
 
 
@@ -219,3 +251,22 @@ f8 = (And p (Neg (Or q r)))
 
 f9 :: Prop 
 f9 = (Neg (Or p (Neg (And q r))))
+
+f9p :: Prop 
+f9p = (Or (Neg p) (Neg (Or (Neg q) r)))
+
+f9p2 ::  Prop 
+f9p2 = (Or (Neg p) (And (Neg (Neg q)) (Neg r)))
+
+
+f10 :: Prop 
+f10 = (Or (Neg (Or (Neg (Neg p)) q)) (Or (Neg (Neg r)) s))
+
+f11 :: Prop 
+f11 = (Or (Neg (Or p q)) (And p r))
+
+f12 :: Prop 
+f12 = (Or (Or (Neg p) (Neg q)) (And p r))
+
+f13 :: Prop 
+f13 = (Or (Or (Neg p) (Neg (Or q r))) (And p r))

@@ -166,6 +166,17 @@ eliminaImp (And a b) = (And (eliminaImp a) (eliminaImp b))
 eliminaImp (Or a b) = (Or (eliminaImp a) (eliminaImp b))
 eliminaImp (Imp a b) = (Or (Neg (eliminaImp a)) (eliminaImp b))
 
+empujaNegaciones :: Prop -> Prop
+empujaNegaciones (And a b) = (Or (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
+empujaNegaciones (Or a b) = (And (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
+empujaNegaciones (Neg a) = if (literal(a)) then (Neg a) else empujaNegaciones a
+
+
+
+
 {- Formula 6-}
 f6 :: Prop 
 f6 = (Syss (Imp p q) r)
+
+f7 :: Prop 
+f7 = (Neg (Or p (And q r)))

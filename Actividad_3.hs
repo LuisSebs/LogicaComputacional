@@ -7,7 +7,7 @@ data Prop = VarProp String
           | And Prop  Prop
           | Or Prop Prop
           | Syss Prop Prop
- deriving (Eq) -- Eliminamos la paralabra Show para implementar el nuestro
+ deriving (Eq) -- Se elimina Show para instanciar nuestro propio Show
 
 -- Variable proposicional p
 p :: Prop
@@ -51,37 +51,11 @@ varsAux :: (Eq a) => [a] -> [a]
 varsAux [] = []
 varsAux (x:xs) = x : varsAux (filter (/= x) xs)
 
-{-  Formula 1
-   (p v ¬ p)-}
-f1 :: Prop
-f1 = Or p (Neg p)
-
-{-  Formula 2
-   (s ʌ ¬t) v ¬r -}
-f2 :: Prop
-f2 = Or (And s (Neg t)) (Neg r)
-
-{-  Formula 3
-   (r v p)<->(q ʌ p) -}
-f3 :: Prop
-f3 = Syss (Or r p) (And q p)
-
-{-  Formula 4
-   (¬(p v q) ʌ r) -> ((s ʌ ¬p) -> (r ʌ q))  -}
-f4 :: Prop
-f4 = Imp (And (Neg (Or p q)) r) (Imp (And s (Neg p)) (And r q))
-
-{-  Formula 5
-    ¬(((p v ¬q) -> (p ʌ r)) <-> (¬(q ʌ t) -> (s v ¬t))) -}
-f5 :: Prop
-f5 = Neg (Syss (Imp (Or p (Neg q)) (And p r)) (Imp (Neg(And q t)) (Or s (Neg t))))
-
--- Interpreta cierta o falsa una formula con ciertos estados dados
 -- Definimos el tipo Estados
 type Estado = [Prop]
 
 {- PARTE 2  -}
--- Funcion de interpretracion
+-- Interpreta cierta o falsa una formula con ciertos estados dados
 interpretacion :: Prop -> Estado -> Bool
 interpretacion T x = True
 interpretacion F x = False
@@ -146,37 +120,111 @@ instance Show Prop where
    show (Syss a b) = "(" ++ show(a) ++ " <-> " ++ show(b) ++ ")"
 
 {- PARTE 3  -}
+-- Funcion que elimina equivalencias
+eliminaEquiv :: Prop -> Prop
+eliminaEquiv T = T 
+eliminaEquiv F = F 
+eliminaEquiv (VarProp p) = (VarProp p)
+eliminaEquiv (Neg a) = (Neg(eliminaEquiv a))
+eliminaEquiv (And a b) = (And (eliminaEquiv a) (eliminaEquiv b))
+eliminaEquiv (Or a b) = (Or (eliminaEquiv a) (eliminaEquiv b))
+eliminaEquiv (Imp a b) = (Imp (eliminaEquiv a) (eliminaEquiv b))
+eliminaEquiv (Syss a b) = (And (Imp (eliminaEquiv a) (eliminaEquiv b)) (Imp (eliminaEquiv b) (eliminaEquiv a)))
 
+-- Elimina implicaciones en una formula
+eliminaImp :: Prop -> Prop
+eliminaImp T = T 
+eliminaImp F = F 
+eliminaImp (VarProp p) = (VarProp p)
+eliminaImp (Neg a) = (Neg (eliminaImp a))
+eliminaImp (And a b) = (And (eliminaImp a) (eliminaImp b))
+eliminaImp (Or a b) = (Or (eliminaImp a) (eliminaImp b))
+eliminaImp (Imp a b) = (Or (Neg (eliminaImp a)) (eliminaImp b))
 
-{-Funcion que regresa determina si una formula es una literal o no-}
+-- Empuja las negaciones y elimina dobles negaciones
+empujaNeg :: Prop -> Prop 
+empujaNeg T = T 
+empujaNeg F = F
+empujaNeg (VarProp p) = (VarProp p)
+empujaNeg (And a b) = (And (empujaNeg a)(empujaNeg b))
+empujaNeg (Or a b) = (Or (empujaNeg a)(empujaNeg b))
+empujaNeg (Neg a) = empujaNegAux(Neg a)
+-- Funcion auxiliar que considera el casos espaciales de la funcion empujaNeg
+empujaNegAux :: Prop -> Prop 
+empujaNegAux (Neg T) = T 
+empujaNegAux (Neg F) = F
+empujaNegAux (Neg (VarProp p)) = (Neg (VarProp p))
+empujaNegAux (Neg (And a b)) =(Or (empujaNeg(Neg a))(empujaNeg(Neg b)))
+empujaNegAux (Neg (Or a b)) = (And (empujaNeg(Neg a))(empujaNeg(Neg b)))
+empujaNegAux (Neg (Neg a)) = empujaNeg(a)
+
+{-Parte 4-}
+{-Funcion que determina si una formula es una literal o no-}
 literal :: Prop -> Bool
 literal T = True
 literal F = True
 literal (VarProp p) = True
-literal (Neg a) = literal(a) -- Suponiendo que las negaciones solo figuran frente a atomos
+literal (Neg T) = True 
+literal (Neg F) = True
+literal (Neg (VarProp p)) = True
+literal (Neg a) = False -- Suponiendo que las negaciones solo figuran frente a atomos
 literal (And a b) = False
 literal (Or a b) = False
 literal (Imp a b) = False
 literal (Syss a b) = False
 
-fnc :: Prop -> Prop
-fnc T = T 
-fnc F = F 
-fnc (VarProp p) = (VarProp p)
-fnc (Neg a) = (Neg a) -- Porque suponemos que las negaciones ya estan frente a atomos
-fnc (And a b) = (And (fnc(a)) (fnc(b)))
-fnc (Or a b) = distr(fnc(a))(fnc(b))
+{-  Formula 1
+   (p v ¬ p)-}
+f1 :: Prop
+f1 = Or p (Neg p)
 
-distr :: Prop -> Prop -> Prop
-distr (VarProp p) (VarProp q) = (Or (VarProp p) (VarProp q))
-distr (VarProp p) (And a1 a2) = (And (VarProp p)(a1)) 
-distr (And a1 a2) b = (And (distr a1 b)(distr a2 b))
-distr a (And b1 b2) = (And (distr b1 a)(distr b2 a))
+{-  Formula 2
+   (s ʌ ¬t) v ¬r -}
+f2 :: Prop
+f2 = Or (And s (Neg t)) (Neg r)
+
+{-  Formula 3
+   (r v p)<->(q ʌ p) -}
+f3 :: Prop
+f3 = Syss (Or r p) (And q p)
+
+{-  Formula 4
+   (¬(p v q) ʌ r) -> ((s ʌ ¬p) -> (r ʌ q))  -}
+f4 :: Prop
+f4 = Imp (And (Neg (Or p q)) r) (Imp (And s (Neg p)) (And r q))
+
+{-  Formula 5
+    ¬(((p v ¬q) -> (p ʌ r)) <-> (¬(q ʌ t) -> (s v ¬t))) -}
+f5 :: Prop
+f5 = Neg (Syss (Imp (Or p (Neg q)) (And p r)) (Imp (Neg(And q t)) (Or s (Neg t))))
 
 {- Formula 6-}
-f6 :: Prop
-f6 = (Or (And (Neg p)(Neg q))(Or r s)) 
+f6 :: Prop 
+f6 = (Syss (Imp p q) r)
 
+f7 :: Prop 
+f7 = (Neg (And p (Or (Neg q) r)))
 
+f8 :: Prop
+f8 = (And p (Neg (Or q r)))
 
- 
+f9 :: Prop 
+f9 = (Neg (Or p (Neg (And q r))))
+
+f10 :: Prop 
+f10 = (Or (Neg p) (Neg (Or (Neg q) r)))
+
+f11 ::  Prop 
+f11 = (Or (Neg p) (And (Neg (Neg q)) (Neg r)))
+
+f12 :: Prop 
+f12 = (Or (Neg (Or (Neg (Neg p)) q)) (Or (Neg (Neg r)) s))
+
+f13 :: Prop 
+f13 = (Or (Neg (Or p q)) (And p r))
+
+f14 :: Prop 
+f14 = (Or (Or (Neg p) (Neg q)) (And p r))
+
+f15 :: Prop 
+f15 = (Or (Or (Neg p) (Neg (Or q r))) (And p r))

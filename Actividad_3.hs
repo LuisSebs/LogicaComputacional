@@ -170,22 +170,41 @@ empujaNegaciones :: Prop -> Prop
 empujaNegaciones T = T 
 empujaNegaciones F = F 
 empujaNegaciones (VarProp p) = (VarProp p)
-empujaNegaciones (And a b) = (And a b)
-empujaNegaciones (Or a b) = (Or a b)
-empujaNegaciones (Neg (And a b)) = (Or (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
-empujaNegaciones (Neg (Or a b)) = (And (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
-empujaNegaciones (Neg a) = if (literal(a)) then (Neg a) else empujaNegaciones a
+empujaNegaciones (Neg T) = (Neg T) 
+empujaNegaciones (Neg F) = (Neg F)
+empujaNegaciones (Neg (VarProp p)) = (Neg (VarProp p))
+empujaNegaciones (And a b) = (And (empujaNegaciones a)(empujaNegaciones b))
+empujaNegaciones (Or a b) = (Or (empujaNegaciones a)(empujaNegaciones b))
+empujaNegaciones (Neg (And a b)) = (Or (empujaNegaciones (Neg a))(empujaNegaciones (Neg b)))
+empujaNegaciones (Neg (Or a b)) = (And (empujaNegaciones (Neg a))(empujaNegaciones (Neg b)))
+empujaNegaciones (Neg a) = (Neg (empujaNegaciones a))
 
-{-Funcion que regresa determina si una formula es una literal o no-}
+--empujaNegaciones T = T 
+--empujaNegaciones F = F 
+--empujaNegaciones (VarProp p) = (VarProp p)
+--empujaNegaciones (Neg p) = (Neg (empujaNegaciones(p)))
+--empujaNegaciones (Neg (And a b)) = (Or (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
+--empujaNegaciones (Neg (Or a b)) = (And (empujaNegaciones(Neg a))(empujaNegaciones(Neg b)))
+--empujaNegaciones (And a b) = (And (empujaNegaciones a) (empujaNegaciones b))
+--empujaNegaciones (Or a b) = (Or (empujaNegaciones a) (empujaNegaciones b))
+--empujaNegaciones (Neg a) = if (literal(a)) then (Neg a) else empujaNegaciones a
+
+{-Funcion que determina si una formula es una literal o no-}
 literal :: Prop -> Bool
 literal T = True
 literal F = True
 literal (VarProp p) = True
-literal (Neg a) = literal(a) -- Suponiendo que las negaciones solo figuran frente a atomos
+literal (Neg T) = True 
+literal (Neg F) = True
+literal (Neg (VarProp p)) = True
+literal (Neg a) = False -- Suponiendo que las negaciones solo figuran frente a atomos
 literal (And a b) = False
 literal (Or a b) = False
 literal (Imp a b) = False
 literal (Syss a b) = False
+
+{-Funcion que elimina doble negaciones-}
+
 
 
 {- Formula 6-}
@@ -197,3 +216,6 @@ f7 = (Neg (And p (Or (Neg q) r)))
 
 f8 :: Prop
 f8 = (And p (Neg (Or q r)))
+
+f9 :: Prop 
+f9 = (Neg (Or p (Neg (And q r))))

@@ -1,5 +1,5 @@
 -- Creamos el lenguaje Prop
-data Prop = VarProp Int
+data Prop = VarProp String
           | T 
           | F 
           | Neg Prop
@@ -7,23 +7,23 @@ data Prop = VarProp Int
           | And Prop  Prop
           | Or Prop Prop
           | Syss Prop Prop
- deriving (Show, Eq)
+ deriving (Eq) -- Eliminamos la paralabra Show para implementar el nuestro
 
 -- Variable proposicional p
 p :: Prop
-p = VarProp 1
+p = VarProp "p"
 --Variable proposicional q
 q :: Prop
-q = VarProp 2
+q = VarProp "q"
 -- Variable proposicional r
 r :: Prop
-r = VarProp 3
+r = VarProp "r"
 -- Variable proposicional s
 s :: Prop
-s = VarProp 4
+s = VarProp "s"
 -- Variable proposicional t
 t :: Prop
-t = VarProp 5
+t = VarProp "t"
 
 {- PARTE 1  -}
 -- Regresa una lista con las sublistas de los elementos de la lista (Conjunto potencia)
@@ -134,4 +134,49 @@ estados (Or p q) = subConjProp(vars(Or p q))
 estados (Imp p q) = subConjProp(vars(Imp p q))
 estados (Syss p q) = subConjProp(vars(Syss p q)) 
 
+{-extra-}
+instance Show Prop where
+   show (T) = "⊤"++" "
+   show (F) = "⊥"++" "
+   show (VarProp p) = p
+   show (Neg a) = "¬"++show(a)
+   show (And a b) = "(" ++ show(a) ++ " ∧ "  ++ show(b) ++ ")"
+   show (Or a b) = "(" ++ show(a) ++ " ∨ "  ++ show(b) ++ ")"
+   show (Imp a b) = "(" ++ show(a) ++ " -> " ++ show(b) ++ ")"
+   show (Syss a b) = "(" ++ show(a) ++ " <-> " ++ show(b) ++ ")"
+
 {- PARTE 3  -}
+
+
+{-Funcion que regresa determina si una formula es una literal o no-}
+literal :: Prop -> Bool
+literal T = True
+literal F = True
+literal (VarProp p) = True
+literal (Neg a) = literal(a) -- Suponiendo que las negaciones solo figuran frente a atomos
+literal (And a b) = False
+literal (Or a b) = False
+literal (Imp a b) = False
+literal (Syss a b) = False
+
+fnc :: Prop -> Prop
+fnc T = T 
+fnc F = F 
+fnc (VarProp p) = (VarProp p)
+fnc (Neg a) = (Neg a) -- Porque suponemos que las negaciones ya estan frente a atomos
+fnc (And a b) = (And (fnc(a)) (fnc(b)))
+fnc (Or a b) = distr(fnc(a))(fnc(b))
+
+distr :: Prop -> Prop -> Prop
+distr (VarProp p) (VarProp q) = (Or (VarProp p) (VarProp q))
+distr (VarProp p) (And a1 a2) = (And (VarProp p)(a1)) 
+distr (And a1 a2) b = (And (distr a1 b)(distr a2 b))
+distr a (And b1 b2) = (And (distr b1 a)(distr b2 a))
+
+{- Formula 6-}
+f6 :: Prop
+f6 = (Or (And (Neg p)(Neg q))(Or r s)) 
+
+
+
+ 

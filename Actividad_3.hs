@@ -147,3 +147,14 @@ instance Show Prop where
 
 {- PARTE 3  -}
 
+eliminaEquiv :: Prop -> Prop
+eliminaEquiv T = T 
+eliminaEquiv F = F 
+eliminaEquiv (VarProp p) = (VarProp p)
+eliminaEquiv (Neg a) = (Neg(eliminaEquiv a))
+eliminaEquiv (And a b) = (And (eliminaEquiv a) (eliminaEquiv b))
+eliminaEquiv (Or a b) = (Or (eliminaEquiv a) (eliminaEquiv b))
+eliminaEquiv (Imp a b) = (Imp (eliminaEquiv a) (eliminaEquiv b))
+eliminaEquiv (Syss a b) = (And (Imp (eliminaEquiv a) (eliminaEquiv b)) (Imp (eliminaEquiv b) (eliminaEquiv a)))
+
+

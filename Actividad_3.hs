@@ -51,37 +51,11 @@ varsAux :: (Eq a) => [a] -> [a]
 varsAux [] = []
 varsAux (x:xs) = x : varsAux (filter (/= x) xs)
 
-{-  Formula 1
-   (p v ¬ p)-}
-f1 :: Prop
-f1 = Or p (Neg p)
-
-{-  Formula 2
-   (s ʌ ¬t) v ¬r -}
-f2 :: Prop
-f2 = Or (And s (Neg t)) (Neg r)
-
-{-  Formula 3
-   (r v p)<->(q ʌ p) -}
-f3 :: Prop
-f3 = Syss (Or r p) (And q p)
-
-{-  Formula 4
-   (¬(p v q) ʌ r) -> ((s ʌ ¬p) -> (r ʌ q))  -}
-f4 :: Prop
-f4 = Imp (And (Neg (Or p q)) r) (Imp (And s (Neg p)) (And r q))
-
-{-  Formula 5
-    ¬(((p v ¬q) -> (p ʌ r)) <-> (¬(q ʌ t) -> (s v ¬t))) -}
-f5 :: Prop
-f5 = Neg (Syss (Imp (Or p (Neg q)) (And p r)) (Imp (Neg(And q t)) (Or s (Neg t))))
-
--- Interpreta cierta o falsa una formula con ciertos estados dados
 -- Definimos el tipo Estados
 type Estado = [Prop]
 
 {- PARTE 2  -}
--- Funcion de interpretracion
+-- Interpreta cierta o falsa una formula con ciertos estados dados
 interpretacion :: Prop -> Estado -> Bool
 interpretacion T x = True
 interpretacion F x = False
@@ -157,6 +131,7 @@ eliminaEquiv (Or a b) = (Or (eliminaEquiv a) (eliminaEquiv b))
 eliminaEquiv (Imp a b) = (Imp (eliminaEquiv a) (eliminaEquiv b))
 eliminaEquiv (Syss a b) = (And (Imp (eliminaEquiv a) (eliminaEquiv b)) (Imp (eliminaEquiv b) (eliminaEquiv a)))
 
+-- Elimina implicaciones en una formula
 eliminaImp :: Prop -> Prop
 eliminaImp T = T 
 eliminaImp F = F 
@@ -166,6 +141,7 @@ eliminaImp (And a b) = (And (eliminaImp a) (eliminaImp b))
 eliminaImp (Or a b) = (Or (eliminaImp a) (eliminaImp b))
 eliminaImp (Imp a b) = (Or (Neg (eliminaImp a)) (eliminaImp b))
 
+-- Empuja las negaciones y elimina dobles negaciones
 empujaNeg :: Prop -> Prop 
 empujaNeg T = T 
 empujaNeg F = F
@@ -173,7 +149,7 @@ empujaNeg (VarProp p) = (VarProp p)
 empujaNeg (And a b) = (And (empujaNeg a)(empujaNeg b))
 empujaNeg (Or a b) = (Or (empujaNeg a)(empujaNeg b))
 empujaNeg (Neg a) = empujaNegAux(Neg a)
-
+-- Funcion auxiliar que considera el casos espaciales de la funcion empujaNeg
 empujaNegAux :: Prop -> Prop 
 empujaNegAux (Neg T) = T 
 empujaNegAux (Neg F) = F
@@ -182,45 +158,7 @@ empujaNegAux (Neg (And a b)) =(Or (empujaNeg(Neg a))(empujaNeg(Neg b)))
 empujaNegAux (Neg (Or a b)) = (And (empujaNeg(Neg a))(empujaNeg(Neg b)))
 empujaNegAux (Neg (Neg a)) = empujaNeg(a)
 
-
-
---empujaNeg dania
---empujaNeg :: Prop -> Prop
---empujaNeg (VarProp p) = (VarProp p)
---empujaNeg (Neg (And p q)) = (Or (Neg(empujaNeg p))(Neg(empujaNeg q)))
---empujaNeg (Neg (Or p q)) = (And (Neg(empujaNeg p))(Neg(empujaNeg q)))
---empujaNeg (Neg p) = (Neg (empujaNeg p))
---empujaNeg (And p q) = (And (empujaNeg p)(empujaNeg q))
---empujaNeg (Or p q) = (Or (empujaNeg p)(empujaNeg q))
-
-
-
-
-notNeg :: Prop -> Bool
-notNeg T = True 
-notNeg F = True 
-notNeg (VarProp p) = True 
-notNeg (And a b) = (notNeg a && notNeg b)
-notNeg (Or a b) = (notNeg a && notNeg b)
-notNeg (Neg (VarProp p)) = True
-notNeg (Neg (And a b)) = False
-notNeg (Neg (Or a b)) = False 
-notNeg (Neg a) = True
-
-
-
-
-
-
---deMorgan :: Prop -> Prop
---deMorgan T = T
---deMorgan F = F
---deMorgan (VarProp p) = (VarProp p)
---deMorgan (Neg (And a b)) = (Or (Neg (deMorgan a)) (Neg (deMorgan b)))
---deMorgan (Neg (Or a b)) = (And (Neg (deMorgan a))(Neg (deMorgan b)))
---deMorgan (Neg p) = (Neg (deMorgan p))
-
-
+{-Parte 4-}
 {-Funcion que determina si una formula es una literal o no-}
 literal :: Prop -> Bool
 literal T = True
@@ -235,9 +173,30 @@ literal (Or a b) = False
 literal (Imp a b) = False
 literal (Syss a b) = False
 
-{-Funcion que limina doble negaciones-}
+{-  Formula 1
+   (p v ¬ p)-}
+f1 :: Prop
+f1 = Or p (Neg p)
 
+{-  Formula 2
+   (s ʌ ¬t) v ¬r -}
+f2 :: Prop
+f2 = Or (And s (Neg t)) (Neg r)
 
+{-  Formula 3
+   (r v p)<->(q ʌ p) -}
+f3 :: Prop
+f3 = Syss (Or r p) (And q p)
+
+{-  Formula 4
+   (¬(p v q) ʌ r) -> ((s ʌ ¬p) -> (r ʌ q))  -}
+f4 :: Prop
+f4 = Imp (And (Neg (Or p q)) r) (Imp (And s (Neg p)) (And r q))
+
+{-  Formula 5
+    ¬(((p v ¬q) -> (p ʌ r)) <-> (¬(q ʌ t) -> (s v ¬t))) -}
+f5 :: Prop
+f5 = Neg (Syss (Imp (Or p (Neg q)) (And p r)) (Imp (Neg(And q t)) (Or s (Neg t))))
 
 {- Formula 6-}
 f6 :: Prop 
@@ -252,21 +211,20 @@ f8 = (And p (Neg (Or q r)))
 f9 :: Prop 
 f9 = (Neg (Or p (Neg (And q r))))
 
-f9p :: Prop 
-f9p = (Or (Neg p) (Neg (Or (Neg q) r)))
-
-f9p2 ::  Prop 
-f9p2 = (Or (Neg p) (And (Neg (Neg q)) (Neg r)))
-
-
 f10 :: Prop 
-f10 = (Or (Neg (Or (Neg (Neg p)) q)) (Or (Neg (Neg r)) s))
+f10 = (Or (Neg p) (Neg (Or (Neg q) r)))
 
-f11 :: Prop 
-f11 = (Or (Neg (Or p q)) (And p r))
+f11 ::  Prop 
+f11 = (Or (Neg p) (And (Neg (Neg q)) (Neg r)))
 
 f12 :: Prop 
-f12 = (Or (Or (Neg p) (Neg q)) (And p r))
+f12 = (Or (Neg (Or (Neg (Neg p)) q)) (Or (Neg (Neg r)) s))
 
 f13 :: Prop 
-f13 = (Or (Or (Neg p) (Neg (Or q r))) (And p r))
+f13 = (Or (Neg (Or p q)) (And p r))
+
+f14 :: Prop 
+f14 = (Or (Or (Neg p) (Neg q)) (And p r))
+
+f15 :: Prop 
+f15 = (Or (Or (Neg p) (Neg (Or q r))) (And p r))

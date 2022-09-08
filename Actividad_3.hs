@@ -146,7 +146,7 @@ instance Show Prop where
    show (Syss a b) = "(" ++ show(a) ++ " <-> " ++ show(b) ++ ")"
 
 {- PARTE 3  -}
-
+-- Funcion que elimina equivalencias
 eliminaEquiv :: Prop -> Prop
 eliminaEquiv T = T 
 eliminaEquiv F = F 
@@ -157,4 +157,15 @@ eliminaEquiv (Or a b) = (Or (eliminaEquiv a) (eliminaEquiv b))
 eliminaEquiv (Imp a b) = (Imp (eliminaEquiv a) (eliminaEquiv b))
 eliminaEquiv (Syss a b) = (And (Imp (eliminaEquiv a) (eliminaEquiv b)) (Imp (eliminaEquiv b) (eliminaEquiv a)))
 
+eliminaImp :: Prop -> Prop
+eliminaImp T = T 
+eliminaImp F = F 
+eliminaImp (VarProp p) = (VarProp p)
+eliminaImp (Neg a) = (Neg (eliminaImp a))
+eliminaImp (And a b) = (And (eliminaImp a) (eliminaImp b))
+eliminaImp (Or a b) = (Or (eliminaImp a) (eliminaImp b))
+eliminaImp (Imp a b) = (Or (Neg (eliminaImp a)) (eliminaImp b))
 
+{- Formula 6-}
+f6 :: Prop 
+f6 = (Syss (Imp p q) r)

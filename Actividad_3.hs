@@ -158,6 +158,10 @@ empujaNegAux (Neg (And a b)) =(Or (empujaNeg(Neg a))(empujaNeg(Neg b)))
 empujaNegAux (Neg (Or a b)) = (And (empujaNeg(Neg a))(empujaNeg(Neg b)))
 empujaNegAux (Neg (Neg a)) = empujaNeg(a)
 
+-- Forma normal negativa
+fnn :: Prop -> Prop 
+fnn a = empujaNeg((eliminaImp(eliminaEquiv(a))))
+
 {-Parte 4-}
 {-Funcion que determina si una formula es una literal o no-}
 literal :: Prop -> Bool
@@ -228,3 +232,6 @@ f14 = (Or (Or (Neg p) (Neg q)) (And p r))
 
 f15 :: Prop 
 f15 = (Or (Or (Neg p) (Neg (Or q r))) (And p r))
+
+f16 :: Prop 
+f16 = (Imp (Imp (Neg p) q) (Imp (Neg r) s))

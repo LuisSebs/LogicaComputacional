@@ -207,3 +207,9 @@ f5 = Neg (Syss (Imp (Or p (Neg q)) (And p r)) (Imp (Neg(And q t)) (Or s (Neg t))
 {- Formula 6-}
 f6 :: Prop 
 f6 = (Syss (Imp p q) r)
+
+f7 :: Prop 
+f7 = (Imp (And (Or (Neg p)(q))(Or (Neg q) r))(Or (Neg p) r))
+
+f8 :: Prop 
+f8 = (Or (Syss r q)(Imp (Neg r) q))

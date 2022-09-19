@@ -183,6 +183,52 @@ distrAux (And a1 a2) b = (And (distr b a1) (distr b a2))
 distrAux a (And b1 b2) = (And (distr a b1) (distr a b2))
 distrAux a b = (Or a b) --Ya cubrimos todos los casos por lo tanto este ultimo seria el que es una clausula de puras disyunciones
 
+{-Boletin de ejercicios-}
+{-grado: recibe una fórmula lógica y regresa el número de conectivos lógicos que tiene-}
+grado ::  Prop -> Int
+grado T = 0
+grado F = 0
+grado (VarProp p) = 0
+grado (Neg a) = 1 + grado(a)
+grado (And a b) = 1 + grado(a) + grado(b)
+grado (Or a b) = 1 + grado(a) + grado(b)
+grado (Imp a b) = 1 + grado(a) + grado(b)
+grado (Syss a b) = 1 + grado(a) + grado(b)
+
+{-atom: recibe una fórmula y regresa el conjunto de subfórmulas atómicas-}
+atom :: Prop -> [Prop]
+atom T = [T]
+atom F = [F]
+atom (VarProp p) = [(VarProp p)]
+atom (Neg a) = atom(a)
+atom (And a b) = atom(a) ++ atom(b)
+atom (Or a b) = atom(a) ++ atom(b)
+atom (Imp a b) = atom(a) ++ atom(b)
+atom (Syss a b) = atom(a) ++ atom(b)
+
+{-sub: recibe una fórmula y regresa el conjunto de todas las subfórmulas-}
+sub :: Prop -> [Prop]
+sub T = [T]
+sub F = [F]
+sub (VarProp p) = [(VarProp p)]
+sub (Neg a) = [Neg a] ++ sub(a)
+sub (And a b) = [And a b] ++ sub(a) ++ sub(b)
+sub (Or a b) = [Or a b] ++ sub(a) ++ sub(b)
+sub (Imp a b) = [Imp a b] ++ sub(a) ++ sub(b)
+sub (Syss a b) = [Syss a b] ++ sub(a) ++ sub(b)
+
+{-eln: recibe una fórmula phi y regresa la fórmula que resulta de reemplazar phi 
+en cada subformula de la forma ¬phi por phi -> F-}
+eln :: Prop -> Prop
+eln T = T 
+eln F = F 
+eln (VarProp p) = (VarProp p)
+eln (Neg a) = (Imp a F)
+eln (And a b) = (And (eln(a)) (eln(b)))
+eln (Or a b) = (Or (eln(a)) (eln(b)))
+eln (Imp a b) = (Imp (eln(a)) (eln(b)))
+eln (Syss a b) = (Syss (eln(a)) (eln(b)))
+
 {-  Formula 1
    (p v ¬ p)-}
 f1 :: Prop

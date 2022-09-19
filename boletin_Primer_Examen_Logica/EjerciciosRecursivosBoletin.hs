@@ -73,25 +73,6 @@ iAux (VarProp p) (x:xs) = if (VarProp p) == x
                            then True
                            else iAux (VarProp p) xs
 
-{- La formula1 = f1 es
-   (p v ¬ p) = True siempre sin importar los estados [x]
--}
-
-{- La formula2 = f2 es
-   (s ʌ ¬t) v ¬r = True con los estados [s] 
-   (s ʌ ¬t) v ¬r = False con los estados [r] o [s,r,t]
--}
-
-{- La formula3 = f3 es
-   (r v p)<->(q ʌ p) = True con los estados [q] 
-   (r v p)<->(q ʌ p) = False con los estados [r,p] 
--}
-
-{- La formula4 = f4 es
-   (¬(p v q) ʌ r) -> ((s ʌ ¬p) -> (r ʌ q)) = True con los estados [q,r,s] 
-   (¬(p v q) ʌ r) -> ((s ʌ ¬p) -> (r ʌ q)) = False con los estados [r,s] 
--}
-
 -- Funcion auxiliar que regresa el conjunto potencia de una lista de proposiciones (hace lo mismo que subConj)
 subConjProp :: [Prop] -> [[Prop]]
 subConjProp [] = [[]]
@@ -110,12 +91,12 @@ estados (Syss p q) = subConjProp(vars(Syss p q))
 
 {-extra-}
 instance Show Prop where
-   show (T) = "⊤"++" "
-   show (F) = "⊥"++" "
+   show (T) = "T"++" "
+   show (F) = "F"++" "
    show (VarProp p) = p
    show (Neg a) = "¬"++show(a)
-   show (And a b) = "(" ++ show(a) ++ " ∧ "  ++ show(b) ++ ")"
-   show (Or a b) = "(" ++ show(a) ++ " ∨ "  ++ show(b) ++ ")"
+   show (And a b) = "(" ++ show(a) ++ " ^ "  ++ show(b) ++ ")"
+   show (Or a b) = "(" ++ show(a) ++ " v "  ++ show(b) ++ ")"
    show (Imp a b) = "(" ++ show(a) ++ " -> " ++ show(b) ++ ")"
    show (Syss a b) = "(" ++ show(a) ++ " <-> " ++ show(b) ++ ")"
 
@@ -163,6 +144,7 @@ fnn :: Prop -> Prop
 fnn a = empujaNeg((eliminaImp(eliminaEquiv(a))))
 
 {-Parte 4-}
+
 {-Funcion que determina si una formula es una literal o no-}
 literal :: Prop -> Bool
 literal T = True
@@ -176,6 +158,30 @@ literal (And a b) = False
 literal (Or a b) = False
 literal (Imp a b) = False
 literal (Syss a b) = False
+
+{-Forma normal conjuntiva-}
+fnc :: Prop -> Prop
+fnc a = fncAux(fnn a)
+
+fncAux :: Prop -> Prop
+fncAux T = T 
+fncAux F = F 
+fncAux (VarProp p) = (VarProp p)
+fncAux (Neg p) = (Neg p) -- Suponiendo que las negaciones figuran frente a atomos
+fncAux (And a b) = (And (fnc(a))(fnc(b)))
+fncAux (Or a b) = (distr (fnc a) (fnc b))
+
+distr :: Prop -> Prop -> Prop 
+distr a b = if (literal(a)&&literal(b)) then (Or a b) else distrAux a b
+
+distrAux :: Prop -> Prop -> Prop
+distrAux (VarProp p) (Or (VarProp q) (VarProp s)) = (Or (VarProp p) (Or (VarProp q) (VarProp s)))
+distrAux (Or (VarProp q) (VarProp s)) (VarProp p)  = (Or  (Or (VarProp q) (VarProp s)) (VarProp p))
+distrAux (Or a1 a2) (Or b1 b2) = (Or (distr a1 a2) (distr b1 b2))
+distrAux (And a1 a2) (And b1 b2) = (And (distr a1 (And b1 b2)) (distr a2 (And b1 b2)))
+distrAux (And a1 a2) b = (And (distr b a1) (distr b a2))
+distrAux a (And b1 b2) = (And (distr a b1) (distr a b2))
+distrAux a b = (Or a b) --Ya cubrimos todos los casos por lo tanto este ultimo seria el que es una clausula de puras disyunciones
 
 {-  Formula 1
    (p v ¬ p)-}
@@ -207,31 +213,79 @@ f6 :: Prop
 f6 = (Syss (Imp p q) r)
 
 f7 :: Prop 
-f7 = (Neg (And p (Or (Neg q) r)))
+f7 = (Imp (And (Or (Neg p)(q))(Or (Neg q) r))(Or (Neg p) r))
 
-f8 :: Prop
-f8 = (And p (Neg (Or q r)))
-
-f9 :: Prop 
-f9 = (Neg (Or p (Neg (And q r))))
+f8 :: Prop 
+f8 = (Or (Syss r q)(Imp (Neg r) q))
 
 f10 :: Prop 
-f10 = (Or (Neg p) (Neg (Or (Neg q) r)))
+f10 = (Or p (And q r))
 
-f11 ::  Prop 
-f11 = (Or (Neg p) (And (Neg (Neg q)) (Neg r)))
+f11 :: Prop 
+f11 = (Or (And p q) r)
 
 f12 :: Prop 
-f12 = (Or (Neg (Or (Neg (Neg p)) q)) (Or (Neg (Neg r)) s))
+f12 = (And (Or p q) (Or r s))
 
 f13 :: Prop 
-f13 = (Or (Neg (Or p q)) (And p r))
+f13 = (Or (And p q) (And r s))
 
 f14 :: Prop 
-f14 = (Or (Or (Neg p) (Neg q)) (And p r))
+f14 = (Or (And p (Neg q)) (And q (Neg p)))
 
 f15 :: Prop 
-f15 = (Or (Or (Neg p) (Neg (Or q r))) (And p r))
-
+f15 = (Or (And p q) (And q p))
+------------------------------------
 f16 :: Prop 
-f16 = (Imp (Imp (Neg p) q) (Imp (Neg r) s))
+f16 = (And (Or p q)(Or r s)) 
+
+f17 :: Prop 
+f17 = (Or (Or p q)(Or r s))
+
+f18 :: Prop 
+f18 = (Or (Neg (Syss p q))(Imp (Neg q) r))
+---------------------------------------
+c1 :: Prop 
+c1 = (Or p q) -- CHECK
+
+c2 :: Prop 
+c2 = (Or p (And q r)) -- CHECK
+
+c3 :: Prop 
+c3 = (Or p (Or q r)) -- CHECK
+
+c4 :: Prop 
+c4 = (Or (And p q ) r)-- CHECK
+
+c5 :: Prop 
+c5 = (Or (Or p q) r)-- CHECK
+
+c6 :: Prop 
+c6 = (Or (Or p q) (And r s)) -- CHECK
+
+c7 :: Prop 
+c7 = (Or (And p q) (Or r s)) -- CHECK
+
+c8 :: Prop 
+c8 = (Or (Or p q)(Or r s)) -- CHECK
+
+c9 :: Prop 
+c9 = (Or (And p q)(And r s))
+
+----------
+
+e1 :: Prop 
+e1 = (Or (Or (And p (Neg q))(And q (Neg p)))(Or q r))
+
+e2 :: Prop 
+e2 = fnn((Or (Syss r q)(Imp (Neg r) q)))
+
+----
+f41 :: Prop 
+f41 = (Or (Or p q) (Neg r))
+
+f42 :: Prop 
+f42 = (Or (Or s (p)) (And r q))
+
+ultima :: Prop 
+ultima = (Or (Neg (Syss p q)) (Imp (Neg q) r))

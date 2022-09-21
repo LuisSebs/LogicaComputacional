@@ -1,6 +1,7 @@
 module Actividad03 where 
     
     import Practica01
+    import Ejemplos
 
 -- Actividad 1 
     type Literal = Prop
@@ -24,6 +25,7 @@ module Actividad03 where
     clausulasFNCAux (Or p q) = clausulasFNCAux(p) ++ clausulasFNCAux(q)
 
 -- Actividad 2
+    {-
     esModeloClausulas :: Estado -> [Clausula] -> Bool
     esModeloClausulas e (c:cs) = (esModeloAux e c) && (esModeloClausulas e cs) 
 
@@ -39,9 +41,9 @@ module Actividad03 where
     -- Ejemplo de la actividad 1 del pdf
     fe1 :: Prop 
     fe1 = (And (Or (Neg p) q) r)
+    -}
 
     -- Ejemplos extra
-
     f19 :: Prop
     f19 = (And p q)
 

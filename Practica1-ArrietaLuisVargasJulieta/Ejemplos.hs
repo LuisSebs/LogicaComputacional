@@ -1,4 +1,5 @@
-import Practica01 -- Importamos Practica01.hs
+{- Importamos Practica01.hs y este archivo es el que debemos correr-}
+import Practica01 
 
 {-Formulas proposicionales-}
 -- Variable proposicional p
@@ -111,3 +112,25 @@ c9 = (Or (And p q)(And r s)) -- CHECK
 {-Formula proposicional que hicimos en clase con Javi-}
 ultima :: Prop 
 ultima = (Or (Neg (Syss p q)) (Imp (Neg q) r))
+
+-- Ejemplos para la resolucion binaria
+r1 :: Clausula
+r1 = []
+
+r2 :: Clausula
+r2 = [p]
+
+r3 :: Clausula
+r3 = [(Neg p)]
+
+r4 :: Clausula
+r4 = [p,q,p,s,p,p]
+
+r5 :: Clausula
+r5 = [(Neg p),(Neg q),r,s]
+
+--r1 :: Clausula
+--r1 = [t,(Neg p),q]
+
+--r2 :: Clausula
+--r2 = [p,r,s]

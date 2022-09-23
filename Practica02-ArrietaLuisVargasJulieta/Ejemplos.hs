@@ -112,3 +112,16 @@ c9 = (Or (And p q)(And r s)) -- CHECK
 {-Formula proposicional que hicimos en clase con Javi-}
 ultima :: Prop 
 ultima = (Or (Neg (Syss p q)) (Imp (Neg q) r))
+
+-- Ejemplos para 
+f19 :: Prop
+f19 = (And p q)
+
+f20 :: Prop 
+f20 = (Or p q)
+
+f21 :: Prop 
+f21 = (And (Or p q) (Or r s))
+
+f22 :: Prop 
+f22 = fnc ultima

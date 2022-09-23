@@ -4,10 +4,9 @@ module Actividad03 where
     import Ejemplos
 
 -- Actividad 1 
-    type Literal = Prop
-    type Clausula = [Literal]
 
-    {-Esta funcion recibe una formula proposicional en forma normal conjuntiva (fnc)-}
+    {-Esta funcion recibe una formula proposicional en forma normal conjuntiva (fnc)
+    y regresa una lista de listas de las variables proposicionales de cada clausula -}
     clausulasFNC :: Prop -> [Clausula]
     clausulasFNC T = [clausulasFNCAux(T)]
     clausulasFNC F = [clausulasFNCAux(F)]
@@ -25,7 +24,17 @@ module Actividad03 where
     clausulasFNCAux (Or p q) = clausulasFNCAux(p) ++ clausulasFNCAux(q)
 
 -- Actividad 2
-    {-
+    esModeloClausulas :: Estado -> [Clausula] -> Bool
+    esModeloClausulas e [x] = esModeloAux e x
+    esModeloClausulas e (x:xs) = (esModeloAux e x) && (esModeloClausulas e xs)
+
+    esModeloAux :: Estado -> Clausula -> Bool 
+    esModeloAux e [x] = elem x e
+    esModeloAux e (x:xs) = (elem x e) ||  (esModeloAux e xs) || ((elem x (x:xs))&&(elem (compLit(x)) (x:xs))) 
+    {- El ultimo || de la funcion esModeloAux es el caso para p v ¬p ya que siempre que encontremos 
+    una variable y su complementaria en una clausula entonces la clausula ya es verdadera (True)-}
+
+    {-Código hecho por el ayudante
     esModeloClausulas :: Estado -> [Clausula] -> Bool
     esModeloClausulas e (c:cs) = (esModeloAux e c) && (esModeloClausulas e cs) 
 
@@ -33,25 +42,12 @@ module Actividad03 where
     esModeloAux e (l:ls) = (elem l e) || (elem (inv l) e) || (esModeloAux e ls)
     esModeloAux e l = (elem l e) || (elem (inv l) e) 
 
-    inv :: Literal -> Literal
+    inv :: Literal -> Literal -- Funcion equivalente a la funcion compLit(l) de la practica01
     inv (VarProp x) = (Neg (VarProp x))
     inv (Neg x) = x
     inv c = (not c)
-
-    -- Ejemplo de la actividad 1 del pdf
-    fe1 :: Prop 
-    fe1 = (And (Or (Neg p) q) r)
     -}
+    
 
-    -- Ejemplos extra
-    f19 :: Prop
-    f19 = (And p q)
 
-    f20 :: Prop 
-    f20 = (Or p q)
-
-    f21 :: Prop 
-    f21 = (And (Or p q) (Or r s))
-
-    f22 :: Prop 
-    f22 = fnc ultima
+    

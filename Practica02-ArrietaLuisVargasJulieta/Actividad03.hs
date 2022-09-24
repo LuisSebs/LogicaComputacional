@@ -25,23 +25,30 @@ module Actividad03 where
     clausulasFNCAux (Or p q) = clausulasFNCAux(p) ++ clausulasFNCAux(q)
 
 -- Actividad 2
-    {-
+    
     esModeloClausulas :: Estado -> [Clausula] -> Bool
+    esModeloClausulas e [[T]] = True
+    esModeloClausulas e [[F]] = False
+    esModeloClausulas e [[(VarProp p)]] = iAux (VarProp p) e 
+    esModeloClausulas e [[(Neg (p))]] = if iAux (p) e then False else True 
+    esModeloClausulas e [[p, q]] = iAux (p) e || iAux (q) e
     esModeloClausulas e (c:cs) = (esModeloAux e c) && (esModeloClausulas e cs) 
 
     esModeloAux :: Estado -> Clausula -> Bool    
+    esModeloAux e [l] = (elem l e) || (elem (inv l) e) 
     esModeloAux e (l:ls) = (elem l e) || (elem (inv l) e) || (esModeloAux e ls)
-    esModeloAux e l = (elem l e) || (elem (inv l) e) 
 
+    
     inv :: Literal -> Literal
     inv (VarProp x) = (Neg (VarProp x))
     inv (Neg x) = x
-    inv c = (not c)
-
+    inv T = T
+    inv F = F
+    
     -- Ejemplo de la actividad 1 del pdf
     fe1 :: Prop 
     fe1 = (And (Or (Neg p) q) r)
-    -}
+    
 
     -- Ejemplos extra
     f19 :: Prop
@@ -55,3 +62,5 @@ module Actividad03 where
 
     f22 :: Prop 
     f22 = fnc ultima
+
+    

@@ -4,8 +4,6 @@ module Actividad03 where
     import Ejemplos
 
 -- Actividad 1 
-    type Literal = Prop
-    type Clausula = [Literal]
 
     {-Esta funcion recibe una formula proposicional en forma normal conjuntiva (fnc)-}
     clausulasFNC :: Prop -> [Clausula]

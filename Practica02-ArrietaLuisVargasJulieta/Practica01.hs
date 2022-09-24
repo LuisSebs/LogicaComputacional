@@ -1,5 +1,5 @@
 module Practica01 where
-    
+
 -- Creamos el lenguaje Prop
 data Prop = VarProp String
           | T 
@@ -171,6 +171,36 @@ distrAux (And a1 a2) (And b1 b2) = (And (distr a1 (And b1 b2)) (distr a2 (And b1
 distrAux (And a1 a2) b = (And (distr b a1) (distr b a2))
 distrAux a (And b1 b2) = (And (distr a b1) (distr a b2))
 distrAux a b = (Or a b) --Ya cubrimos todos los casos por lo tanto este ultimo seria el que es una clausula de puras disyunciones
+
+{-Parte 5-}
+
+{- Implementemos una cláusula con una lista de literales en una fórmula-}
+type Literal = Prop
+type Clausula = [Literal]
+
+{-Resolucion Binaria-}
+res :: Clausula -> Clausula -> Clausula 
+res x y = elimD((resAux(elimD(x))(elimD(y)))) 
+
+{-Funcion auxiliar para la resolucionBinaria que procesa las listas sin elementos repetidos -}
+resAux :: Clausula -> Clausula -> Clausula
+resAux [] [] = []
+resAux x [] = x
+resAux [] x = x
+resAux (x:xs) (y:ys) = if (elem(compLit(x)) (y:ys)) 
+                     then filter (not.(==compLit(x))) (y:ys) ++ filter (not.(==x)) (x:xs)
+                     else [x] ++ resAux xs (y:ys)
+
+{-Implementar una función que dada una literal (l) nos
+regrese su literal contraria (l)^c-}
+compLit :: Literal -> Literal
+compLit (VarProp p) = (Neg (VarProp p))
+compLit (Neg p) = p
+
+-- Funcion auxiliar que elimina los elementos duplicados de una lista
+elimD :: (Eq a) => [a] -> [a]
+elimD [] = []
+elimD (x:xs) = x : elimD (filter (/= x) xs)
 
 {-Boletin de ejercicios-}
 {-grado: recibe una fórmula lógica y regresa el número de conectivos lógicos que tiene-}

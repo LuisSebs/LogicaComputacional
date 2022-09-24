@@ -29,25 +29,7 @@ module Actividad03 where
     esModeloClausulas e (x:xs) = (esModeloAux e x) && (esModeloClausulas e xs)
 
     esModeloAux :: Estado -> Clausula -> Bool 
+    esModeloAux e [T] = True
+    esModeloAux e [F]= False
     esModeloAux e [x] = elem x e
-    esModeloAux e (x:xs) = (elem x e) ||  (esModeloAux e xs) || ((elem x (x:xs))&&(elem (compLit(x)) (x:xs))) 
-    {- El ultimo || de la funcion esModeloAux es el caso para p v ¬p ya que siempre que encontremos 
-    una variable y su complementaria en una clausula entonces la clausula ya es verdadera (True)-}
-
-    {-Código hecho por el ayudante
-    esModeloClausulas :: Estado -> [Clausula] -> Bool
-    esModeloClausulas e (c:cs) = (esModeloAux e c) && (esModeloClausulas e cs) 
-
-    esModeloAux :: Estado -> Clausula -> Bool    
-    esModeloAux e (l:ls) = (elem l e) || (elem (inv l) e) || (esModeloAux e ls)
-    esModeloAux e l = (elem l e) || (elem (inv l) e) 
-
-    inv :: Literal -> Literal -- Funcion equivalente a la funcion compLit(l) de la practica01
-    inv (VarProp x) = (Neg (VarProp x))
-    inv (Neg x) = x
-    inv c = (not c)
-    -}
-    
-
-
-    
+    esModeloAux e (x:xs) = (esModeloAux e [x])|| (esModeloAux e xs) || ((elem x (x:xs))&&(elem (compLit(x)) (x:xs))) 

@@ -194,6 +194,8 @@ resAux (x:xs) (y:ys) = if (elem(compLit(x)) (y:ys))
 {-Implementar una función que dada una literal (l) nos
 regrese su literal contraria (l)^c-}
 compLit :: Literal -> Literal
+compLit T = F
+compLit F = T
 compLit (VarProp p) = (Neg (VarProp p))
 compLit (Neg p) = p
 

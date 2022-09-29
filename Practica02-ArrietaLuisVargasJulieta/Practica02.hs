@@ -188,7 +188,20 @@ dpll (m, f)
     | (exito (m, f)) = (m, f) {- Parece redundante este caso y el de abajo pero es para que se termine la ejecucion  ya que 
     en cualquier caso se regresaria (m, [])si es exito y (m,[[]]) si es conflicto, osea las funciones estan bien definidas-}
     | (conflicto (m,f)) = (m,f)
-    | otherwise = dpll((m ++ [sigLit f]), f)
+    | otherwise = unirConfig (dpll((m ++ [sigLit f]), f)) (dpll((m ++ [compLit(sigLit f)]), f)) -- Se realiza el split
+
+-- ---------------------------------------------------------------------
+-- Definir una función que una dos configuraciones dadas, de modo que si
+-- una de ellas contiene un modelo, éste se respete. Si ambas configuraciones
+-- tienen modelo, elegimos uno de ellos. En caso de que ninguna lo tenga, 
+-- sólo devolvemos la lista vacía. 
+-- ---------------------------------------------------------------------
+unirConfig :: Configuracion -> Configuracion -> Configuracion
+unirConfig (m,f) (n,g) = if (f==[[]] && g ==[[]])
+                            then ([],[[]]) -- Como no hay modelo lo dejamos vacio y regresamos [[]] como formula
+                            else if (f/=[[]])
+                                then (m,f)
+                                    else (n,g)
 
 -- Formula que da conflicto
 phiC = [[q,s],[(Neg q),s],[(Neg q),(Neg s)]]

@@ -123,12 +123,15 @@ extraeLit [c] = c
 -- fórmula dada.
 -- ---------------------------------------------------------------------
 quitaUnitaria :: Formula -> Formula
-quitaUnitaria (c:cs) = error "definir :3"
-
+quitaUnitaria [x] = if esClausulaUnitaria x then [] else [x]
+quitaUnitaria (c:cs) = if esClausulaUnitaria c 
+                        then filter (/=c) cs
+                        else quitaUnitaria cs ++ [c]
+quitaUnitaria x = x -- Cualquier otra cosa que no coincida con los patrones anteriores se regresa la formula tal cual
 
 -- ---------------------------------------------------------------------
 -- Definir una función que aplica la regla de eliminación. Es decir, elimina 
--- todas las cláusulas que contengan la litera unitaria. 
+-- todas las cláusulas que contengan la literal. 
 -- ---------------------------------------------------------------------
 elim :: Literal -> Formula -> Formula
 elim l [] = []
@@ -140,3 +143,65 @@ elimAux :: Literal -> Clausula -> Bool
 elimAux l [] = False
 elimAux l (x:xs) = elem l (x:xs)
 
+-- ---------------------------------------------------------------------
+-- Definir una función que implemente la regla de reducción. Es decir, 
+-- que elimine de todas las cláusulas en una fórmula a todas las literales 
+-- que sean complementarias a una literal dada. 
+-- ---------------------------------------------------------------------
+red :: Literal -> Formula -> Formula
+red l [c] = [redAux l c]
+red l (c:cs) = [redAux l c] ++ red l cs
+red l x = x -- Cualquier otra cosa que no coincida con los patrones anteriores se regresa la formula tal cual
+{-Funcion auxiliar de reduccion-}
+redAux :: Literal -> Clausula -> Clausula 
+redAux l [c] = if (compLit l) == c then [] else [c]
+redAux l (c:cs) = filter (/= (compLit l)) (c:cs)
+redAux l x = x -- Cualquier otra cosa que no coincida con los patrones anteriores se regresa la formula tal cual
+
+-- ----------------------------------------------------------------------
+-- Definir una función que regrese alguna literal contenida en la fórmula
+-- dada inicialmente.
+-- ----------------------------------------------------------------------
+sigLit :: Formula -> Literal
+sigLit [] = error "Error: La formula es vacia"
+sigLit [[]] =  error "Error:  La clausula es vacia"
+sigLit [c] = headClausula c
+sigLit (c:cs) = if c==[] then sigLit cs else headClausula c
+
+{-Funcion auxiliar para sigLit que regresa la cabeza de la clausula-}
+headClausula :: Clausula -> Literal
+headClausula (l:ls) = l
+
+-- ----------------------------------------------------------------------
+-- Definir una función que implemente el algoritmo dpll de búsqueda hacia 
+-- atrás para decidir la satisfacibilidad de fórmulas proposicionales.
+-- Dado un modelo y una fórmula nos devuelve un modelo en caso de la fórmula 
+-- haya sido satisfacible. Devuelve una lista vacía en caso contrario. 
+-- ----------------------------------------------------------------------
+dpll :: Configuracion -> Configuracion
+dpll (m, f) 
+    | (usarUnit (m,f)) = ((m ++ [(unitaria f)]),(quitaUnitaria f))
+dpll ((l:ls), f)
+    | (usarElim ((l:ls),f)) = ((l:ls),(elim l f))
+    | (usarRed ((l:ls), f)) = ((l:ls),(red l f))
+dpll (m, f)
+    | (exito (m, f)) = (m, f) {- Parece redundante este caso y el de abajo pero es para que se termine la ejecucion  ya que 
+    en cualquier caso se regresaria (m, [])si es exito y (m,[[]]) si es conflicto, osea las funciones estan bien definidas-}
+    | (conflicto (m,f)) = (m,f)
+    | otherwise = (([sigLit f] ++ m), f)
+
+-- Se puede usar unit de p
+phi1 = [[(Neg p), r, (Neg t)],[(Neg q),(Neg r)],[p, (Neg s)],[(Neg p),q,(Neg r),(Neg s)],[p]]
+conf1 = ([], phi1)
+
+-- Formula que da conflicto
+phiC = [[p,r],[q,(Neg r),s],[(Neg p)],[(Neg q),(Neg r),s],[r],[p,(Neg q),(Neg r),(Neg s)]]
+confC = ([],phiC)
+
+--Se puede usar reduccion de (Neg p) o elim con r
+phiC3 = ([(Neg p),r],[[p,(Neg q),(Neg r),(Neg s)],[q,(Neg r),s],[p,r],[(Neg q),(Neg r),r]])
+
+
+--- Formula [[p,q]],[r]
+-- Formula [] = el vacio
+-- Formula [[]] = clausula vacia[]

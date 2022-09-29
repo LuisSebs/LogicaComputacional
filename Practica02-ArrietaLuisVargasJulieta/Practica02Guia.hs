@@ -137,7 +137,8 @@ conf = ([], phi)
 -- sólo devolvemos la lista vacía. 
 -- ---------------------------------------------------------------------
     unirConfig :: Configuracion -> Configuracion -> Configuracion
-    unirConfig (m,f) (n,g) = error "definir :3"
+    unirConfig (m,f) (n,g) = error "definir :3">
+
 
 
 

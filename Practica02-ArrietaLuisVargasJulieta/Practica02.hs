@@ -180,27 +180,19 @@ headClausula (l:ls) = l
 -- ----------------------------------------------------------------------
 dpll :: Configuracion -> Configuracion
 dpll (m, f) 
-    | (usarUnit (m,f)) = ((m ++ [(unitaria f)]),(quitaUnitaria f))
+    | (usarUnit (m,f)) = dpll((m ++ [(unitaria f)]),(quitaUnitaria f))
 dpll ((l:ls), f)
-    | (usarElim ((l:ls),f)) = ((l:ls),(elim l f))
-    | (usarRed ((l:ls), f)) = ((l:ls),(red l f))
+    | (usarElim ((l:ls),f)) = dpll(ls ++ [l],(elim l f))
+    | (usarRed ((l:ls), f)) = dpll(ls ++ [l],(red l f))
 dpll (m, f)
     | (exito (m, f)) = (m, f) {- Parece redundante este caso y el de abajo pero es para que se termine la ejecucion  ya que 
     en cualquier caso se regresaria (m, [])si es exito y (m,[[]]) si es conflicto, osea las funciones estan bien definidas-}
     | (conflicto (m,f)) = (m,f)
-    | otherwise = (([sigLit f] ++ m), f)
-
--- Se puede usar unit de p
-phi1 = [[(Neg p), r, (Neg t)],[(Neg q),(Neg r)],[p, (Neg s)],[(Neg p),q,(Neg r),(Neg s)],[p]]
-conf1 = ([], phi1)
+    | otherwise = dpll((m ++ [sigLit f]), f)
 
 -- Formula que da conflicto
-phiC = [[p,r],[q,(Neg r),s],[(Neg p)],[(Neg q),(Neg r),s],[r],[p,(Neg q),(Neg r),(Neg s)]]
-confC = ([],phiC)
-
---Se puede usar reduccion de (Neg p) o elim con r
-phiC3 = ([(Neg p),r],[[p,(Neg q),(Neg r),(Neg s)],[q,(Neg r),s],[p,r],[(Neg q),(Neg r),r]])
-
+phiC = [[q,s],[(Neg q),s],[(Neg q),(Neg s)]]
+confC = ([r,(Neg p), q],phiC)
 
 --- Formula [[p,q]],[r]
 -- Formula [] = el vacio

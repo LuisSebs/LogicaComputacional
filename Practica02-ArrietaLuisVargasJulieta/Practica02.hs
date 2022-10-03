@@ -185,9 +185,8 @@ dpll ((l:ls), f)
     | (usarElim ((l:ls),f)) = dpll(ls ++ [l],(elim l f))
     | (usarRed ((l:ls), f)) = dpll(ls ++ [l],(red l f))
 dpll (m, f)
-    | (exito (m, f)) = (m, f) {- Parece redundante este caso y el de abajo pero es para que se termine la ejecucion  ya que 
-    en cualquier caso se regresaria (m, [])si es exito y (m,[[]]) si es conflicto, osea las funciones estan bien definidas-}
-    | (conflicto (m,f)) = (m,f)
+    | (exito (m, f)) = (m, f)
+    | (conflicto (m,f)) = ([],f) {-Se quita el modelo para expresar que no hay modelo-}
     | otherwise = unirConfig (dpll((m ++ [sigLit f]), f)) (dpll((m ++ [compLit(sigLit f)]), f)) -- Se realiza el split
 
 -- ---------------------------------------------------------------------
@@ -207,6 +206,26 @@ unirConfig (m,f) (n,g) = if (f==[[]] && g ==[[]])
 phiC = [[q,s],[(Neg q),s],[(Neg q),(Neg s)]]
 confC = ([r,(Neg p), q],phiC)
 
+-- Configuracion que da conflicto
+confC1 = ([p],[[(Neg p)],[n,q]])
+
+w = (VarProp "w")
+m = (VarProp "m")
+n = (VarProp "n")
+
+hip1 = (Imp w m)
+hip2 = (Imp n m)
+hip3 = (Neg (Imp w n))
+
+fnch1 = fnc hip1 
+fnch2 = fnc hip2 
+fnch3 = fnc hip3
+
+formula = clausulasFNC(fnch1) ++ clausulasFNC(fnch2) ++ clausulasFNC(fnch3)
+
+confp = ([p],[[(Neg p)],[n,q]])
+
+confPrueba = ([],clausulasFNC(fnc ultima))
 --- Formula [[p,q]],[r]
 -- Formula [] = el vacio
 -- Formula [[]] = clausula vacia[]

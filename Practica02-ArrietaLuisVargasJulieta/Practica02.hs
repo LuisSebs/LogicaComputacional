@@ -202,6 +202,10 @@ unirConfig (m,f) (n,g) = if (f==[[]] && g ==[[]])
                                 then (m,f)
                                     else (n,g)
 
+--- Formula [[p,q]],[r]
+-- Formula [] = el vacio (success)
+-- Formula [[]] = clausula vacia (fail)
+
 -- Formula que da conflicto
 phiC = [[q,s],[(Neg q),s],[(Neg q),(Neg s)]]
 confC = ([r,(Neg p), q],phiC)
@@ -209,23 +213,26 @@ confC = ([r,(Neg p), q],phiC)
 -- Configuracion que da conflicto
 confC1 = ([p],[[(Neg p)],[n,q]])
 
+-- Variables de prueba
 w = (VarProp "w")
 m = (VarProp "m")
 n = (VarProp "n")
 
+-- Formulas con las variables de prueba
 hip1 = (Imp w m)
 hip2 = (Imp n m)
 hip3 = (Neg (Imp w n))
 
+-- Formulas en forma normal conjuntiva
 fnch1 = fnc hip1 
 fnch2 = fnc hip2 
 fnch3 = fnc hip3
 
-formula = clausulasFNC(fnch1) ++ clausulasFNC(fnch2) ++ clausulasFNC(fnch3)
+-- Configuracion de prueba 1 (success)
+confPrueba1 = ([],clausulasFNC(fnch1) ++ clausulasFNC(fnch2) ++ clausulasFNC(fnch3))
 
-confp = ([p],[[(Neg p)],[n,q]])
+-- Configuracion de prueba 2 (fail)
+confPrueba2 = ([p],[[(Neg p)],[n,q]])
 
-confPrueba = ([],clausulasFNC(fnc ultima))
---- Formula [[p,q]],[r]
--- Formula [] = el vacio
--- Formula [[]] = clausula vacia[]
+-- Configuracion de prueba 3 (success)
+confPrueba3 = ([],clausulasFNC(fnc ultima))

@@ -127,7 +127,7 @@ dominio :: Sustitucion -> [Variable]
 dominio [] = [] 
 dominio (x:xs) = dominioAux x ++ dominio xs
 
-{-Funcion auxiliar que regresa la primera entrada de la pareja-}
+{-Funcion auxiliar que regresa una lista con la primer entrada de la pareja-}
 dominioAux :: (Variable, Termino) -> [Variable]
 dominioAux (x,t) = [x]
 
@@ -156,8 +156,94 @@ aplicaTAux :: Sustitucion -> [Termino] -> [Termino]
 aplicaTAux s [] = []
 aplicaTAux s (t:ts) = [aplicaT s t] ++  (aplicaTAux s ts)
 
+-- ----------------------------------------------------------------------
+-- Ejercicio 4: Define una función que elimina los pares cuyos elementos
+--              son iguales en una sustitución. 
+-- ----------------------------------------------------------------------
+reduce :: Sustitucion -> Sustitucion
+reduce [] = []
+reduce (x:xs) = (reduceAux x) ++ reduce xs
+
+{-Funcion auxiliar que regresa la lista vacia si la primer entrada
+de la pareja es igual a la segunda-}
+reduceAux :: (Variable, Termino) -> Sustitucion
+reduceAux (v,t) = if v == t then [] else [(v,t)]
+
+-- ----------------------------------------------------------------------
+-- Ejercicio 5: Define una función que dadas dos sustituciones, regresa 
+--              su composición.
+-- ----------------------------------------------------------------------
+composicion :: Sustitucion -> Sustitucion -> Sustitucion
+composicion [] s = s
+composicion (s:ls) x = remove(reduce((composicionAux s x) ++ (composicion ls x)))
+
+{-Funcion auxiliar que aplica una sustitucion a la segunda entrada de una pareja -}
+composicionAux :: (Variable, Termino) -> Sustitucion -> Sustitucion
+composicionAux (v,t) s = [(v,(aplicaT s t))]
+
+{-Funcion auxiliar que remueve de la sustitucion a aquellas parejas
+donde la primer entrada ya figura dentro de la primer entrada de otra pareja
+encontrada anteriormente.-}
+remove :: Sustitucion -> Sustitucion
+remove s = removeAux s []
+
+{-Funcion auxiliar que dada una lista de variables, elimina
+de la sustitucion a aquellas parejas tales que la primer entrada figure 
+dentro de la lista de variables. En caso de que la lista se encuentre
+vacia al iniciar la ejecucion, el comportamiento de la funcion sera el mismo
+que el de la funcion remove. -}
+removeAux :: Sustitucion -> [Variable] -> Sustitucion
+removeAux [] l = []
+removeAux (x:xs) l = if (notIn (ext x) l)  then [x] ++ (removeAux xs ([(ext x)] ++ l)) else (removeAux xs l)
+
+{-Funcion auxiliar que regresa la variable contenida en la primer entrada-}
+ext :: (Variable, Termino) -> Variable
+ext (v,t) = v
+
+{-Funcion auxiliar que regresa True en caso de que la variable no
+se encuentre dentro de la lista de variables, regresa False en caso
+de que si se encuentre.-}
+notIn :: Variable -> [Variable] -> Bool
+notIn t l = not(elem t l)
+
+-- ----------------------------------------------------------------------
+-- Ejercicio 6: Define la función complista que compone todas las
+--              sustituciones de una lista. 
+-- ----------------------------------------------------------------------
+complista :: [Sustitucion] -> Sustitucion
+complista [x] = x
+complista (x:xs) = complista ([(composicion x (sig xs))] ++ (cola xs))
+
+{-Funcion auxiliar que regresa el siguiente elemento de la lista-}
+sig :: [a] -> a
+sig (x:xs) = x
+
+{-Funcion auxiliar que regresa el la lista sin la cabeza-}
+cola :: [a] -> [a]
+cola (x:xs) = xs
+
 
 --Ejemplo
 ss1 = [(x,(T "h" [y]))]
 tt1 = f [h[x],x,g[f[x]],y]
 e1 = aplicaT ss1 tt1
+
+--Ejemplo para reduce
+rho = [(x,a),(z,f[x,y]),(y,y),(u,u)]
+
+--Ejemplo para composicion
+sigma = [(x,a),(z,f[x,y])]
+p = [(x,z),(y,u)]
+
+--Ejemplos para remove
+p1 = [(x,a),(z,f[z,u]),(x,z),(y,u),(x,f[g[x,y,z]])]
+p2 = [(x,a),(z,f[z,u]),(x,z),(y,u),(z,f[g[x,y,z]])]
+p3 = [(x,a),(z,f[z,u]),(x,z),(y,u),(z,f[g[x,y,z]]),(z,x),(z,y)]
+p4 = [(x,a),(x,z),(z,x),(z,y),(z,f[z,u]),(y,h[f[g[x],y]]),(z,f[g[x,y,z]]),(y,u)]
+
+--Ejemplo para complist
+lista = [s2,s6,s7]
+
+
+
+

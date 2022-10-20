@@ -222,6 +222,48 @@ sig (x:xs) = x
 cola :: [a] -> [a]
 cola (x:xs) = xs
 
+-- ----------------------------------------------------------------------
+-- --El algoritmo Martellli-Montanari
+-- ----------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------
+-- Una ecuacion es un par de terminos. 
+-- ----------------------------------------------------------------------
+type EqTerm = (Termino,Termino)
+
+-- ----------------------------------------------------------------------
+-- Ejercicio 1: Define una función que aplique una sustitución a una 
+--              ecuación
+-- ----------------------------------------------------------------------
+apSustEq :: Sustitucion -> EqTerm -> EqTerm
+apSustEq s (t1,t2) = (aplicaT s t1, aplicaT s t2)
+
+-- ----------------------------------------------------------------------
+-- Ejercicio 2: Define la función que implementa el algoritmo de 
+--              Martelli-Montanari
+-- ----------------------------------------------------------------------
+unifmm :: [EqTerm] -> [Sustitucion] -> Sustitucion
+unifmm = error "falta implementar :3"
+
+-- ----------------------------------------------------------------------
+-- Aquí hay una función que unifica una ecuación, úsala sabiamente ;)
+-- ----------------------------------------------------------------------
+unif :: EqTerm -> Sustitucion
+unif eq = unifmm [eq] []
+
+-- ----------------------------------------------------------------------
+-- Ejercicio 3: Define una función que regresa el unificador más general
+--              para una lista de términos
+-- ----------------------------------------------------------------------
+unifL :: [Termino] -> Sustitucion
+unifL = error "falta implementar :3"
+
+
+
+
+
+
+
 
 --Ejemplo
 ss1 = [(x,(T "h" [y]))]
@@ -243,6 +285,9 @@ p4 = [(x,a),(x,z),(z,x),(z,y),(z,f[z,u]),(y,h[f[g[x],y]]),(z,f[g[x,y,z]]),(y,u)]
 
 --Ejemplo para complist
 lista = [s2,s6,s7]
+
+--Ejemplo para apSustEq
+eq1 = (t1,t3)
 
 
 

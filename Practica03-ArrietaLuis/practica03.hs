@@ -1,5 +1,5 @@
 {-Arrieta Mancera Luis Sebastian 318174116-}
-
+import Prelude
 -- ----------------------------------------------------------------------
 -- Los identificadores de los términos son alias de cadenas
 -- ----------------------------------------------------------------------
@@ -211,6 +211,7 @@ notIn t l = not(elem t l)
 --              sustituciones de una lista. 
 -- ----------------------------------------------------------------------
 complista :: [Sustitucion] -> Sustitucion
+complista [] = []
 complista [x] = x
 complista (x:xs) = complista ([(composicion x (sig xs))] ++ (cola xs))
 
@@ -244,12 +245,42 @@ apSustEq s (t1,t2) = (aplicaT s t1, aplicaT s t2)
 -- ----------------------------------------------------------------------
 unifmm :: [EqTerm] -> [Sustitucion] -> Sustitucion
 unifmm [] subs = complista subs
-unifmm ((V x, t2):eqs) subs = -- Aplicar  [SUST]
-unifmm ((t1,V x):eqs) subs -- Aplicar [SWAP]
-unifmm ((T f ts, T g rs):eqs) subs --Aplicar [DESC]
-                            
+unifmm ((V x, t2):eqs) subs = unifmm ((sust (V x , t2) eqs)) (subs ++ [[(V x, t2)]]) -- Aplicar  [SUST]
+unifmm ((t1,V x):eqs) subs = unifmm (swap (t1, V x) ++ eqs) subs -- Aplicar [SWAP]
+unifmm ((T f ts, T g rs):eqs) subs = unifmm (desc (T f ts, T g rs)) subs --Aplicar [DESC]
 
+{-Funcion que aplica la sustitucion-}
+sust :: (Termino,Termino) -> [EqTerm] -> [EqTerm]
+sust (V x, T i ls) [] = []
+sust (V x , T i ls) (e:es) = [(apSustEq [(V x , T i ls)] e)] ++ (sust (V x , T i ls) es)
+sust x y =  error "[SFALLA]"
+{-Funcion que aplica la descomposicion-}
+desc :: (Termino,Termino) -> [EqTerm]
+desc (T f [], T g []) = []
+desc (T f (x:xs), T g (y:ys)) = [(x,y)] ++ desc (T f xs, T g ys)
+desc x = error "[DFALLA]"
+{-Funcion que aplica swap-}
+swap :: (Termino,Termino) -> [EqTerm]
+swap (t1, t2) = [(t2,t1)]
 
+-- ----------------------------------------------------------------------
+-- Aquí hay una función que unifica una ecuación, úsala sabiamente ;)
+-- ----------------------------------------------------------------------
+unif :: EqTerm -> Sustitucion
+unif eq = unifmm [eq] []
+
+-- ----------------------------------------------------------------------
+-- Ejercicio 3: Define una función que regresa el unificador más general
+--              para una lista de términos
+-- ----------------------------------------------------------------------
+unifL :: [Termino] -> Sustitucion
+unifL [x] = []
+unifL (x:xs) =  (unif (x, sig xs)) ++ (unifL ([(aplicaT(unif (x, sig xs))x)] ++ (cola xs)) )
+
+-- Ejemplos para unifL
+exam1 = unifL [t3,t4]
+exam2 = unifL [t9,t10]
+exam3 = unifL [t9,t10,t3]
 
 
 

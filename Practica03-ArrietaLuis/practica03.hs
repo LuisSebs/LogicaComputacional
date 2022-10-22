@@ -243,91 +243,13 @@ apSustEq s (t1,t2) = (aplicaT s t1, aplicaT s t2)
 --              Martelli-Montanari
 -- ----------------------------------------------------------------------
 unifmm :: [EqTerm] -> [Sustitucion] -> Sustitucion
-unifmm (e:es) s = if usarDesc e then [] else [] 
-
-{-Funcion que determina si se puede usar descomposicion [DESC] -}
-usarDesc :: (Termino,Termino) -> Bool
-usarDesc (t1,t2) = usarDescAux (t1,t2)
-usarDescAux :: (Termino,Termino) -> Bool
-usarDescAux (t1,t2) = (sameLength t1 t2)
-sameFunc :: Termino -> Termino -> Bool
-sameFunc (T i1 x) (T i2 y) = i1 == i2  
-sameFunc t1 t2 = False -- En otro caso son variables
-sameLength :: Termino -> Termino -> Bool
-sameLength (T i1 x) (T i2 y) = (len x) == (len y)
-sameLength t1 t2 = False -- En otro caso son variables
-len :: [a] -> Int
-len [] = 0
-len (x:xs) = 1 + len xs 
-
-{-Funcion que determina si falla la descomposicion [DFALLLA]-}
-usarDFalla :: (Termino,Termino) -> Bool
-usarDFalla (T i1 x,T i2 y) = not( i1 == i2 )
-usarDFalla (t1,t2) = False --En cualquier otro caso
-
-{-Funcion que determina si se puede usar eliminacion [ELIM]-}
-usarElim :: (Termino,Termino) -> Bool
-usarElim (V x,V y) = x == y
-usarElim (t1,t2) = False
-
-{-Funcion que determina si se puede usar swap [SWAP]-}
-usarSwap :: (Termino,Termino) -> Bool
-usarSwap (T i1 xs, V i2) = True
-usarSwap (t1,t2) = False -- En cualquier otro caso   
-
-usarSust :: (Termino,Termino) -> Bool
-usarSust = error "definir"
+unifmm [] subs = complista subs
+unifmm ((V x, t2):eqs) subs = -- Aplicar  [SUST]
+unifmm ((t1,V x):eqs) subs -- Aplicar [SWAP]
+unifmm ((T f ts, T g rs):eqs) subs --Aplicar [DESC]
+                            
 
 
-
-
-
-term1 = (T "f" [g[x],h[x,u]])
-term2 = (T "f" [z,h[f[y,y],z]])
-eqT1 = (term1,term2)
--- ----------------------------------------------------------------------
--- Aquí hay una función que unifica una ecuación, úsala sabiamente ;)
--- ----------------------------------------------------------------------
---unif :: EqTerm -> Sustitucion
---unif eq = unifmm [eq] []
-
--- ----------------------------------------------------------------------
--- Ejercicio 3: Define una función que regresa el unificador más general
---              para una lista de términos
--- ----------------------------------------------------------------------
---unifL :: [Termino] -> Sustitucion
---unifL = error "falta implementar :3"
-
-
-
-
-
-
-
-
---Ejemplo
-ss1 = [(x,(T "h" [y]))]
-tt1 = f [h[x],x,g[f[x]],y]
-e1 = aplicaT ss1 tt1
-
---Ejemplo para reduce
-rho = [(x,a),(z,f[x,y]),(y,y),(u,u)]
-
---Ejemplo para composicion
-sigma = [(x,a),(z,f[x,y])]
-p = [(x,z),(y,u)]
-
---Ejemplos para remove
-p1 = [(x,a),(z,f[z,u]),(x,z),(y,u),(x,f[g[x,y,z]])]
-p2 = [(x,a),(z,f[z,u]),(x,z),(y,u),(z,f[g[x,y,z]])]
-p3 = [(x,a),(z,f[z,u]),(x,z),(y,u),(z,f[g[x,y,z]]),(z,x),(z,y)]
-p4 = [(x,a),(x,z),(z,x),(z,y),(z,f[z,u]),(y,h[f[g[x],y]]),(z,f[g[x,y,z]]),(y,u)]
-
---Ejemplo para complist
-lista = [s2,s6,s7]
-
---Ejemplo para apSustEq
-eq1 = (t1,t3)
 
 
 

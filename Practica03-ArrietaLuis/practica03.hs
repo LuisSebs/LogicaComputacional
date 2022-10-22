@@ -1,5 +1,4 @@
 {-Arrieta Mancera Luis Sebastian 318174116-}
-import Prelude
 -- ----------------------------------------------------------------------
 -- Los identificadores de los términos son alias de cadenas
 -- ----------------------------------------------------------------------

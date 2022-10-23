@@ -243,21 +243,23 @@ apSustEq s (t1,t2) = (aplicaT s t1, aplicaT s t2)
 --              Martelli-Montanari
 -- ----------------------------------------------------------------------
 unifmm :: [EqTerm] -> [Sustitucion] -> Sustitucion
-unifmm [] subs = complista subs
+unifmm [] subs = complista subsh[g[g[a]],g[a]]
 unifmm ((V x, t2):eqs) subs = unifmm ((sust (V x , t2) eqs)) (subs ++ [[(V x, t2)]]) -- Aplicar  [SUST]
 unifmm ((t1,V x):eqs) subs = unifmm (swap (t1, V x) ++ eqs) subs -- Aplicar [SWAP]
 unifmm ((T f ts, T g rs):eqs) subs = unifmm (desc (T f ts, T g rs)) subs --Aplicar [DESC]
 
 {-Funcion que aplica la sustitucion-}
 sust :: (Termino,Termino) -> [EqTerm] -> [EqTerm]
-sust (V x, T i ls) [] = []
-sust (V x , T i ls) (e:es) = [(apSustEq [(V x , T i ls)] e)] ++ (sust (V x , T i ls) es)
-sust x y =  error "[SFALLA]"
+sust (V x, t) [] = []
+sust (V x , t) (e:es) 
+    | elem (V x) (variables t) = error ("[SFALLA] ya que " ++ show (V x) ++ "=" ++ show t ++ "no es unificable") 
+    | otherwise = [(apSustEq [(V x , t)] e)] ++ (sust (V x , t) es)
 {-Funcion que aplica la descomposicion-}
 desc :: (Termino,Termino) -> [EqTerm]
 desc (T f [], T g []) = []
-desc (T f (x:xs), T g (y:ys)) = [(x,y)] ++ desc (T f xs, T g ys)
-desc x = error "[DFALLA]"
+desc (T f (x:xs), T g (y:ys)) 
+    | f == g = [(x,y)] ++ desc (T f xs, T g ys)
+    | otherwise = error ("[DFALLA] Los símbolos de función " ++ show f ++ " y " ++ show g ++ "son distintos" )
 {-Funcion que aplica swap-}
 swap :: (Termino,Termino) -> [EqTerm]
 swap (t1, t2) = [(t2,t1)]

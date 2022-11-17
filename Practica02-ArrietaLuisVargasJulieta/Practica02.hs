@@ -236,3 +236,8 @@ confPrueba2 = ([p],[[(Neg p)],[n,q]])
 
 -- Configuracion de prueba 3 (success)
 confPrueba3 = ([],clausulasFNC(fnc ultima))
+
+tarea :: Prop
+tarea = Or (And (And (And ((Neg p)) ((Neg q))) (r)) (And (s) ((Neg t)))) (And (And (And (p) (q)) ((Neg r))) (And ((Neg s)) (t)))
+tareafnc = fnc tarea
+tareaClausulas = clausulasFNC tareafnc
